@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>JSCRAPER Game</title>
+	<script type="text/javascript" src="./d3.min.js"></script>
+
+</head>
+
+<script type="text/javascript">
+
+	function loadCSV(callback) {
+	  var xhr = new XMLHttpRequest();
+	  xhr.open('GET', './jeopardy_games.csv', true);
+
+	  xhr.onreadystatechange = function() {
+	    if (xhr.readyState === 4 && xhr.status === 200) {
+	      // CSV file contents are available in xhr.responseText
+	      let data = xhr.responseText;
+	      callback(data);
+	    }
+	  };
+
+	  xhr.send();
+	}
+
+	function manipulateData(data) {
+	  // Manipulate the data variable here
+	  let rows = data.split("\n");
+
+	  //select random row
+	  let random_row = Math.floor(Math.random() * rows.length - 1) +1;  // avoids choosing header
+	  let split_row = rows[random_row].split("|");
+	  console.log(split_row)
+	  // now populate the appropriate places with the split_row
+	  var clue = document.getElementById("clue-question");
+	  var stringsArray = [split_row[6], split_row[5]];
+	  document.getElementById('dollar-amount').innerHTML = split_row[4];
+	  document.getElementById('clue-question').innerHTML = stringsArray[1];
+	  document.getElementById('round').innerHTML = split_row[2];
+	  document.getElementById('category').innerHTML = split_row[3];
+
+	  let index = 0;
+	  // addEventListener for a specific key to toggle clue with answer
+	  window.addEventListener('keydown', (event) => {
+	  	if (event.key === "j") {
+	  		event.preventDefault();
+	  		if (index > stringsArray.length - 1){
+	  			index = 0;
+	  		}
+	  		document.getElementById('clue-question').innerHTML = stringsArray[index];
+	  		index++;
+	  	}
+	  })
+
+	}
+
+	// addEventListener to get a new clue
+	window.addEventListener('keydown', (event) => {
+		if (event.key === 'k'){
+			event.preventDefault();
+			loadCSV(manipulateData);
+		}
+	})
+
+</script>
+
+<style type="text/css"> /* this is my CSS */
+	@font-face{
+		font-family: "customFont";
+		src: url("Korinna-Regular.otf") format("opentype");
+	}
+
+	p {
+		color: white;
+	}
+
+	table, th, td{
+		border: 5px solid black;
+		border-collapse: collapse;
+		background-color: rgb(6, 12, 233);
+		font-family: customFont;
+		word-wrap: break-word;
+		text-align: center;
+	}
+
+</style>
+
+<body>
+
+	<p class="round-board">
+		<table style="width:20%; font-family: customFont; text-transform: uppercase;">
+			<tr>
+				<th>
+					<p id='round'> <FONT COLOR="white">  </FONT></p>
+				</th>
+			</tr>
+		</table>
+
+	</p>
+
+
+	<p class="category-board">
+		<table style="width:20%; font-family: customFont; text-transform: uppercase;">
+			<tr>
+				<th>
+					<p id='category' color='white'> </p>
+				</th>
+			</tr>
+		</table>
+	</p>
+
+	<p class="clue-board">
+		<table style="width:20%; font-family: customFont; text-transform: uppercase">
+	  		<tr>
+	    		<th> <FONT COLOR="white"><p id="dollar-amount"> </p></th>
+	  		</tr>
+	  		<tr>
+	    		<td> <FONT COLOR="white"> <p id="clue-question"> </p> </td>
+	  		</tr> 
+	  		<tbody id="table"></tbody>
+		</table>
+	</p>
+
+	<!--TODO: replace the input object to automatically load the CSV-->
+	<!--<input type="file" id="fileUpload" />-->
+
+</body>
+</html>
