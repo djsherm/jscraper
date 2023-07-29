@@ -12,6 +12,33 @@ from selenium.common.exceptions import NoSuchElementException
 
 import pandas as pd
 
+###############################################################
+# AUTOMATICALLY DOWNLOAD WEBDRIVER #
+# https://stackoverflow.com/questions/62017043/automatic-download-of-appropriate-chromedriver-for-selenium-in-python
+
+import requests, wget, zipfile, os
+
+# get lastest chrome driver version number
+url = 'https://chromedriver.storage.googleapis.com/LATEST_RELEASE'
+response = requests.get(url)
+version_number = response.text
+
+# build the download url
+download_url = "https://chromedriver.storage.googleapis.com/" + version_number +"/chromedriver_win32.zip"
+
+driver_location = os.path.join(os.getcwd(), 'chromedriver.exe')
+
+if os.path.isfile(driver_location) == False:
+    # download the zip file using the url built above
+    latest_driver_zip = wget.download(download_url,'chromedriver.zip')
+    # extract the zip file only if file exists
+    with zipfile.ZipFile(latest_driver_zip, 'r') as zip_ref:
+        zip_ref.extractall() # you can specify the destination folder path here
+    # delete the zip file downloaded above
+    os.remove(latest_driver_zip)
+
+###############################################################
+
 def jscraper(game_url, jeopardy_game):
     '''
     
@@ -32,7 +59,7 @@ def jscraper(game_url, jeopardy_game):
     
     #set chromedriver.exe path
     PATH = "C:\Program Files (x86)\chromedriver.exe"
-    driver = webdriver.Chrome(executable_path=PATH)
+    driver = webdriver.Chrome(executable_path=os.path.join(os.getcwd(), 'chromedriver.exe'))
     driver.implicitly_wait(0.5)
     
     #launch URL
